@@ -1,7 +1,12 @@
 require('dotenv').config()
 const express = require('express')
 const app = express()
-app.use(express.json())
+
+const cookieParser = require('cookie-parser')
+
+// middlewares
+app.use(express.json());
+app.use(cookieParser())
 
 /* Require all the routes here.. */
 const authRouter = require('../src/routes/auth.route')

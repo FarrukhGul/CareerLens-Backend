@@ -1,6 +1,8 @@
 const userModel = require('../models/user.model')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const tokenBlackListModel = require('../models/blacklist.model')
+
 
 
 
@@ -45,7 +47,7 @@ async function registerUserController(req, res) {
         { expiresIn: '1d' }
     );
 
-    res.cookie("Token", token)
+    res.cookie("token", token)
 
     res.status(201).json({
         message: "User Registered Successfully...",
@@ -56,7 +58,6 @@ async function registerUserController(req, res) {
         }
     })
 };
-
 
 
 /**
@@ -72,7 +73,7 @@ async function loginUserController(req, res) {
 
     if (!user) {
         return res.status(400).json({
-            message: "User does not exists."
+            message: "Invalid Email or Password."
         })
     };
 
@@ -90,7 +91,7 @@ async function loginUserController(req, res) {
         { expiresIn: '1d' }
     );
 
-    res.cookie("Token", token)
+    res.cookie("token", token)
 
     res.status(200).json({
         message: "User Logged in successfully..",
@@ -102,7 +103,29 @@ async function loginUserController(req, res) {
     });
 }
 
+
+/**
+ * @name {*} logoutUserController 
+ * @description use to logout the user 
+ * @access Public 
+ */
+async function logoutUserController(req, res){
+    const token = req.cookies.token
+
+    if(token){
+        await tokenBlackListModel.create({token})
+    }
+
+    res.clearCookie("token")
+
+    res.status(200).json({
+        message : "User Logout Successfully..."
+    })
+}
+
+
 module.exports = {
     registerUserController,
-    loginUserController
+    loginUserController,
+    logoutUserController
 }
